@@ -1,25 +1,50 @@
-import { ValidationError } from 'joi';
-import CustomErrorHandler from '../customErrorHandler/CustomErrorHandler'
-const errorHandler = (err,req,res,next) =>{
+// const { ValidationError } = require('joi');
+// const CustomErrorHandler = require('../customErrorHandler/CustomErrorHandler');
+
+// const errorHandler = (err, req, res, next) => {
+//     let statusCode = 500;
+//     let data = {
+//         message: err.message,
+//     };
+
+//     if (err instanceof ValidationError) {
+//         statusCode = 422;
+//         data = {
+//             message: err.message,
+//         };
+//     } else if (err instanceof CustomErrorHandler) {
+//         statusCode = err.status;
+//         data = {
+//             message: err.message,
+//         };
+//     }
+
+//     res.status(statusCode).json(data);
+// };
+
+// module.exports = errorHandler;
+
+const { ValidationError } = require('joi');
+const CustomErrorHandler = require('../customErrorHandler/CustomErrorHandler');
+
+const errorHandler = (err, req, res, next) => {
     let statusCode = 500;
-    let errorData = {
-        'message' : err.message
-    }
+    let data = {
+        message: "An unexpected error occurred",
+    };
 
-    if(err instanceof ValidationError){
+    if (err instanceof ValidationError) {
         statusCode = 422;
-        errorData = {
-            'message' : err.message
-        }    
-    }
-
-    if(err instanceof CustomErrorHandler){
+        data.message = err.message;
+    } else if (err instanceof CustomErrorHandler) {
         statusCode = err.status;
-        errorData = {
-            'message' : err.message
-        }
+        data.message = err.message;
+    } else if (err instanceof Error) {
+        // This could be a generic Error instance not caught by other branches
+        data.message = err.message;
     }
-    return res.status(statusCode).json(errorData)
-}
 
-export default errorHandler;
+    res.status(statusCode).json(data);
+};
+
+module.exports = errorHandler;
