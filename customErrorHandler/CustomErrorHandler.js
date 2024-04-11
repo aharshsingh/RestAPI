@@ -10,7 +10,14 @@ class CustomErrorHandler extends Error {
     }
 
     static wrongCredentials(message) {
-        return new CustomErrorHandler(409, message);
+        return new CustomErrorHandler(401, message);
+    }
+
+    static notAuthorized(message) {
+        return new CustomErrorHandler(401, message);
+    }
+    static notFound(message) {
+        return new CustomErrorHandler(401, message);
     }
 }
 
