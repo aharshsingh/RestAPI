@@ -1,8 +1,9 @@
 const dotenv = require('dotenv');
 dotenv.config();
-module.exports ={
+module.exports = {
     APP_PORT : process.env.APP_PORT,
     DB_URL : process.env.DB_URL,
-    JWT_SECRET : process.env.JWT_SECRET
+    JWT_SECRET : process.env.JWT_SECRET,
+    REFRESH_SECRET : process.env.REFRESH_SECRET
 }
 

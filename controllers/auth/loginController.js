@@ -3,6 +3,8 @@ const customErrorHandler = require('../../customErrorHandler/CustomErrorHandler'
 const bcrypt = require('bcrypt');
 const JwtService = require('../../jsonWebTokenService/JwtService');
 const User = require('../../models/user');
+const RefreshToken = require('../../models/refreshToken');
+
 const loginController = {
     async login(req,res,next){
         //validation
@@ -27,7 +29,16 @@ const loginController = {
             }
             //token
             const access_token = JwtService.sign({ _id: user._id, role: user.role });
-            res.json({access_token});
+            const refresh_token = JwtService.refreshTokenSign({ _id: user._id, role: user.role });
+            //database whitelist
+            const refreshToken = new RefreshToken({ token: refresh_token, userName: user.userName });
+            // await refreshToken.save();
+            await RefreshToken.findOneAndUpdate(
+                { userName: user.userName },
+                { token: refresh_token },
+                { new: true, upsert: true }
+            );
+            res.json({access_token, refresh_token});
         } catch (err) {
             return next(err);
         }
