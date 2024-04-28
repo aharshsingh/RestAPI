@@ -12,13 +12,13 @@ const path = require('path');
 //     }
 // });
 const storage = multer.diskStorage({
-    destination: 'uploads',
+    destination : (req,file, cb) => cb(null, 'uploads/'),
     filename: (req,file,cb) => {
-        const uniqueName = Date.now+file.originalname;
+        const uniqueName = `${Date.now()}-${Math.round(Math.round()*1E9)}${path.extname(file.originalname)}`;
         cb(null,uniqueName)
     }
 })
-const handleMultipartData = multer({ storage }).single('image')
+const handleMultipartData = multer({ storage, limits:{fileSize: 1000000*5}}).single('image')
 
 const productController = {
     addProducts(req,res,next) {
@@ -29,8 +29,11 @@ const productController = {
                 return next(CustomErrorHandler.serverError(err.message));
             }
             else{
+                // console.log("File data:", req.file);  // Log file data
+                // console.log("Body data:", req.body);  // Log body data
+
                 // console.log(req.file);
-                // const filePath = req.file.path;
+                const filePath = req.file.path;
                 const { name,price,about,material,care,colour,gender,fit,size,rating,discount } = req.body;
                 // Prepare the model
                 const product = new Product({
@@ -45,10 +48,7 @@ const productController = {
                 size,
                 rating,
                 discount,
-                image: {
-                    data: req.file.filename,
-                    contentType: "image/png"
-                }
+                image: filePath
                 });
                 let result
                 try {
@@ -92,11 +92,22 @@ const productController = {
         let documents;
         try{
             // documents = await Product.find(); this method will give an array of all the products in the database 
-            documents = await Product.find();   //second method is done with  the help of pagination library name: mongoose-pagination
+            documents = await Product.find().select('-__v');   //second method is done with  the help of pagination library name: mongoose-pagination
         }catch(err){
             return next(err);
         }
         return res.json(documents);
+    },
+
+    async showSingleProduct(req,res,next) {
+        let document;
+        try {
+            document = await Product.findOne({_id: req.params.id});
+            console.log(document);
+        } catch (error) {
+            return next(CustomErrorHandler.notFound());
+        }
+        return res.json(document);
     }
 }
 

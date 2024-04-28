@@ -13,5 +13,6 @@ router.post('/refresh', refreshController.refresh);
 router.post('/logout', logoutController.logout);
 router.post('/addProducts',productController.addProducts)
 router.get('/showProducts', productController.showProducts);
+router.get('/showSingleProducts/:id', productController.showSingleProduct);
 
 module.exports = router;
